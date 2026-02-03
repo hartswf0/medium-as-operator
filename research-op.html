@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPEK :: UNIVERSAL OPERATOR</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            --neon-green: #00ff41;
+            --bg-dark: #0a0a0a;
+            --terminal-gray: #1a1a1a;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--neon-green);
+            font-family: 'JetBrains+Mono', monospace;
+            overflow: hidden;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Scanline Overlay Effect for Hypermediation */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%,
+                rgba(0, 0, 0, 0.25) 50%
+            ), linear-gradient(
+                90deg,
+                rgba(255, 0, 0, 0.06),
+                rgba(0, 255, 0, 0.02),
+                rgba(0, 0, 255, 0.06)
+            );
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .hypermediated .scanlines {
+            opacity: 1;
+        }
+
+        /* Flicker Animation */
+        @keyframes flicker {
+            0% { opacity: 0.97; }
+            5% { opacity: 0.95; }
+            10% { opacity: 0.9; }
+            15% { opacity: 0.99; }
+            100% { opacity: 1; }
+        }
+
+        .hypermediated .main-content {
+            animation: flicker 0.15s infinite;
+        }
+
+        .artifact-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #fff;
+        }
+
+        .sidebar {
+            border-right: 1px solid var(--neon-green);
+            background: rgba(10, 10, 10, 0.95);
+        }
+
+        .nav-button {
+            transition: all 0.2s ease;
+            text-align: left;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-button.active {
+            background: rgba(0, 255, 65, 0.1);
+            border-left: 4px solid var(--neon-green);
+            color: white;
+        }
+
+        .nav-button:hover {
+            background: rgba(0, 255, 65, 0.05);
+        }
+
+        .operator-panel {
+            background: var(--terminal-gray);
+            border-bottom: 1px solid var(--neon-green);
+        }
+
+        .status-light {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            box-shadow: 0 0 5px var(--neon-green);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                z-index: 100;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body class="flex flex-col">
+    <div class="scanlines"></div>
+
+    <!-- Header / Operator Panel -->
+    <header class="operator-panel p-4 flex justify-between items-center z-40">
+        <div class="flex items-center gap-4">
+            <button id="menuToggle" class="md:hidden p-2 border border-green-500 rounded">☰</button>
+            <h1 class="text-lg font-bold tracking-tighter">OPEK // UNIVERSAL OPERATOR</h1>
+            <span class="text-xs opacity-50 hidden sm:inline">[STATION: TEXT-URE_01]</span>
+        </div>
+        
+        <div class="flex gap-4 items-center">
+            <div class="flex items-center text-xs">
+                <span class="status-light bg-green-500"></span>
+                <span id="clock">00:00:00</span>
+            </div>
+            <button onclick="toggleMediation()" class="px-3 py-1 border border-green-500 text-xs hover:bg-green-500 hover:text-black transition-colors uppercase font-bold">
+                Toggle Mirror
+            </button>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden relative">
+        <!-- Sidebar Navigation -->
+        <nav id="sidebar" class="sidebar w-72 flex-shrink-0 overflow-y-auto p-4 flex flex-col gap-2 z-40">
+            <div class="text-[10px] opacity-40 mb-2 uppercase tracking-widest">Research Signals</div>
+            
+            <button onclick="loadArtifact(0)" class="nav-button p-3 text-sm active" data-index="0">
+                01. Closure Foraging Prompts
+            </button>
+            <button onclick="loadArtifact(1)" class="nav-button p-3 text-sm" data-index="1">
+                02. Windows & Mirrors
+            </button>
+            <button onclick="loadArtifact(2)" class="nav-button p-3 text-sm" data-index="2">
+                03. Kittler Zettelkasten
+            </button>
+            <button onclick="loadArtifact(3)" class="nav-button p-3 text-sm" data-index="3">
+                04. OPEK :: System Console
+            </button>
+            <button onclick="loadArtifact(4)" class="nav-button p-3 text-sm" data-index="4">
+                05. Medium as Operator
+            </button>
+            <button onclick="loadArtifact(5)" class="nav-button p-3 text-sm" data-index="5">
+                06. TEXT-URE (Spatial Grids)
+            </button>
+
+            <div class="mt-auto pt-4 border-t border-green-900">
+                <div class="text-[10px] opacity-40 uppercase mb-2">Transmission Controls</div>
+                <button id="launchBtn" onclick="launchInNewTab()" class="w-full p-2 border border-green-500 text-xs hover:bg-green-500 hover:text-black mb-2">
+                    EXECUTE SOURCE (NEW TAB)
+                </button>
+                <div class="text-[9px] leading-tight opacity-50 italic">
+                    "Media determine our situation."<br>— Friedrich Kittler
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Viewport -->
+        <main class="main-content flex-1 bg-white relative">
+            <div id="loadingOverlay" class="absolute inset-0 bg-black flex items-center justify-center z-10 pointer-events-none transition-opacity duration-500">
+                <div class="text-green-500 animate-pulse font-bold tracking-[0.2em]">INITIALIZING FEED...</div>
+            </div>
+            <iframe id="artifactIframe" class="artifact-frame" src="" title="Artifact View"></iframe>
+        </main>
+    </div>
+
+    <script>
+        const artifacts = [
+            {
+                title: "Closure Machine Foraging Prompts",
+                url: "https://hartswf0.github.io/windows-and-mirrors/closure-foraging-deck.zip/index.html"
+            },
+            {
+                title: "W04·S7 | Windows & Mirrors",
+                url: "https://hartswf0.github.io/windows-and-mirrors/"
+            },
+            {
+                title: "Kittler Zettelkasten",
+                url: "https://hartswf0.github.io/text-ure/kittler-zettelkasten.html"
+            },
+            {
+                title: "OPEK :: SYSTEM CONSOLE",
+                url: "https://hartswf0.github.io/opek/"
+            },
+            {
+                title: "The Medium as Operator: Ritual vs System",
+                url: "https://hartswf0.github.io/medium-as-operator/#intro"
+            },
+            {
+                title: "TEXT-URE — The Operator",
+                url: "https://hartswf0.github.io/text-ure/"
+            }
+        ];
+
+        let currentIndex = 0;
+        const iframe = document.getElementById('artifactIframe');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const sidebar = document.getElementById('sidebar');
+
+        function loadArtifact(index) {
+            currentIndex = index;
+            const data = artifacts[index];
+            
+            // UI Updates
+            loadingOverlay.style.opacity = '1';
+            document.querySelectorAll('.nav-button').forEach((btn, i) => {
+                btn.classList.toggle('active', i === index);
+            });
+
+            // Set Iframe
+            iframe.src = data.url;
+            
+            // Close mobile menu
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+            }
+
+            // Hide overlay when loaded
+            iframe.onload = () => {
+                loadingOverlay.style.opacity = '0';
+            };
+        }
+
+        function launchInNewTab() {
+            window.open(artifacts[currentIndex].url, '_blank');
+        }
+
+        function toggleMediation() {
+            document.body.classList.toggle('hypermediated');
+        }
+
+        // Clock Function
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ":" + 
+                            now.getMinutes().toString().padStart(2, '0') + ":" + 
+                            now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('clock').innerText = timeStr;
+        }
+
+        // Menu Toggle
+        document.getElementById('menuToggle').addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        // Initialize
+        window.onload = () => {
+            loadArtifact(0);
+            setInterval(updateClock, 1000);
+            updateClock();
+        };
+
+        // Fallback for iFrame issues (Displaying instructions if blocked)
+        iframe.onerror = function() {
+            loadingOverlay.innerHTML = `<div class="p-8 text-center"><p>SIGNAL BLOCKED BY SOURCE PROVIDER.</p><button onclick="launchInNewTab()" class="mt-4 p-4 border border-green-500">MANUAL OVERRIDE (NEW TAB)</button></div>`;
+            loadingOverlay.style.opacity = '1';
+        };
+    </script>
+</body>
+</html>
